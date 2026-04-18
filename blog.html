@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bouncing Ball Sound Simulation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+        header { text-align: center; margin-bottom: 40px; }
+        h1, h2, h3, h4 { color: #333; }
+        code { background: #f4f4f4; padding: 2px 4px; border-radius: 3px; }
+        ul, ol { margin-left: 20px; }
+        p { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Bouncing Ball Sound Simulation</h1>
+    </header>
+    <main>
+        <p>This code simulates the sound of a bouncing ball using FM synthesis and a decreasing bounce event pattern. This is in line with the principles from "Practical 7: Bouncing" in <em>Designing Sound</em>.</p>
+
+        <h2>Files</h2>
+        <ul>
+            <li><code>bouncing.html</code> – HTML page with a button to start the bouncing sound.</li>
+            <li><code>bouncing.js</code> – JavaScript implementation using the Web Audio API to generate impact sounds, applying amplitude decay and schedules bounces at progressively shorter intervals.</li>
+        </ul>
+
+        <h2>How it works</h2>
+        <p>Each bounce is represented as an FM-synthesized impact sound where the carrier oscillator runs at 120 Hz. The modulator sweeps from around 210 Hz down to 80 Hz, so that the bounce's sound dwindles as the bouncing continues. The amplitude, decay time, and bounce period decrease over the course of the simulation, resulting in a sequence of impacts that become quieter, shorter, and closer together similar to the real ball bouncing.</p>
+
+        <h2>How to run it</h2>
+        <ol>
+            <li>Open <code>bouncing.html</code> in a web browser</li>
+            <li>Click the "Play Bouncing Sound" button</li>
+        </ol>
+
+        <h2>Audio Signal Flow Graph</h2>
+        <img src="gain_nodes.png" alt="Audio Signal Flow Graph" style="max-width: 100%; height: auto; display: block; margin: 20px 0;">
+
+
+        <h3>Process and Experience</h3>
+        <p>I started from the bouncing-ball model in <em>Designing Sound</em>, which mentioned a sequence of impacts whose energy drops over time, with event spacing shrinking as the ball loses height. I wanted to recreate this pattern with discrete bounces with each bounce getting quieter and quieter, reflecting the change in energy. The button click triggers the sequence of events.</p>
+
+        <h3>Types of Synthesis Used</h3>
+
+        <h4>1. FM synthesis</h4>
+        <p>This is the main synthesis method in the code where there's a carrier oscillator at <code>120 Hz</code> and a modulator oscillator that decreases ~<code>210 Hz</code> down to <code>80 Hz</code>. The modulator controls the carrier frequency through a gain node</p>
+        <p>I used FM synthesis because it provides a spectrum that changes with each bounce, effectively mimicking the cascade of loud to quiet sound in a real bouncing ball. The first few bounces are stronger. It smoothly moves from a louder tone to a simpler quiet thud.</p>
+
+        <h4>2. Amplitude envelope</h4>
+        <p>I used an amplitude envelope so that each bounce has a short amplitude envelope that starts on the full amplitude, then decays quickly after each bounce. This mimics the real world bouncing ball sound.</p>
+
+        <h2>How the Parts Fit Together</h2>
+        <p>The code has two main layers:</p>
+
+        <h3>1. Bounce event pattern</h3>
+        <p>This helps schedule the ball bouncing pattern. The first bounce happens immediately with each bounce scheduling the next one using <code>setTimeout.</code> Each bounce impact period is directly linear to the current <code>height</code> where as height falls, periods get shorter.</p>
+
+        <h3>2. Impact sound generation</h3>
+        <p>This is the sound generator where for each scheduled bounce it creates a carrier oscillator and a modulator oscillator, sweep modulator frequency downward over the impact, apply an amplitude decay envelope, and finally it connect the result to the audio output.</p>
+
+        <h2>Why These Choices</h2>
+
+        <h3>FM synthesis over noise-based filtering</h3>
+        <p>I chose FM because the bouncing-ball example specifically describes: a spectrum that varies between sine-like and more harmonic, modulation amount linked to impact energy, and the need for a tonal "thud" plus nonlinear attack content.</p>
+
+        <h3>Decreasing period and decay</h3>
+        <p>The key cue of a bouncing ball is that the intervals shrink and the impact energy drops. I used a height-based value to compute period, amplitude, decay, and modulation strength.</p>
+    </main>
+</body>
+</html>
